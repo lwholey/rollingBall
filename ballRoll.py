@@ -6,10 +6,14 @@ def createPathPoints():
 	return xPts, yPts
 
 def correctVelToFitPath(vx, vy, theta):
-  speed = math.sqrt(vx*vx + vy*vy)
-  vx = speed * math.sin(theta)
-  vy = speed * math.cos(theta)
+  speed = getSpeed(vx, vy)
+  vx = speed * math.cos(theta)
+  vy = speed * math.sin(theta)
   return vx, vy
+
+def getSpeed(vx, vy):
+  speed = math.sqrt(vx*vx + vy*vy)
+  return speed
 
 def findTheta(x, xPts, yPts):
   if x == xPts[0]:
@@ -35,15 +39,31 @@ def findFirstGreater(xPts, yPts, target):
   raise Exception("Sorry, no numbers found. X position of %0.2f" % target, "is probably too large")
   return None
 
+def  checkTotalEnergy(py, vx, vy):
+  # find the massless total energy
+  speed = getSpeed(vx, vy)
+  ke = 0.5 * speed * speed
+  pe = getG() * py
+  te = pe + ke
+  print("Total massless energy %0.2f" % te)
+
+def getG():
+	return 9.81 # gravity in meters/second^2
+
 def integratePosVel(px0, py0, vx0, vy0, t0, dt, theta):
 
-  g = 9.81 # gravity in meters/second^2
+  g = getG()
   
   ax = -g * math.cos(theta) * math.sin(theta)
   ay = -g * math.sin(theta) * math.sin(theta)
+  print("ax %0.2f" % ax, "ay %0.2f" % ay)
+  print("acceleration magnitude %0.2f" % getSpeed(ax, ay))
 
   vxf = vx0 + ax * dt
   vyf = vy0 + ay * dt
+
+  print("dt %0.2f" % dt)
+  print("vxf %0.2f" % vxf, "vyf %0.2f" % vyf)
 
   pxf = px0 + vx0 * dt + 0.5 * ax * dt*dt
   pyf = py0 + vy0 * dt + 0.5 * ay * dt*dt
@@ -67,6 +87,7 @@ while t < 5:
   theta = findTheta(px, xPts, yPts)
   vx, vy = correctVelToFitPath(vx, vy, theta)
   px, py, vx, vy, t = integratePosVel(px, py, vx, vy, t, dt, theta)
+  checkTotalEnergy(py, vx, vy)
   print("px %0.2f" % px, 'py %0.2f' % py, "vx %0.2f" % vx, 'vy %0.2f' % vy)
-  print("theta is %0.2f" % (theta*180/math.pi), "deg")
+  #print("theta is %0.2f" % (theta*180/math.pi), "deg")
 
