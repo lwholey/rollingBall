@@ -2,13 +2,23 @@ import math
 
 def createPathPoints():
 	xPts = [1, 3, 5, 7, 9, 11, 13, 15, 17]
-	yPts = [100, 70, 55, 45, 42, 60, 80, 100, 110]
+	yPts = [100, 70, 55, 45, 42, 60, 80, 100, 200]
 	return xPts, yPts
 
 def correctVelToFitPath(vx, vy, theta):
+  # theta is different for velocity and should range between -pi/2 and pi/2
+  vx0 = vx
+  if theta > math.pi / 2:
+    theta = theta - math.pi
+  print("1 vx %0.2f" % vx, 'vy %0.2f' % vy, "theta (deg) %0.2f" % (theta*180/math.pi))
   speed = getSpeed(vx, vy)
   vx = speed * math.cos(theta)
   vy = speed * math.sin(theta)
+  # handle the case where ball was travelling backwards (in negative x direction)
+  if vx0 < 0:
+    vx = -vx
+    vy = -vy
+  print("2 vx %0.2f" % vx, 'vy %0.2f' % vy, "theta (deg) %0.2f" % (theta*180/math.pi))
   return vx, vy
 
 def getSpeed(vx, vy):
@@ -16,6 +26,7 @@ def getSpeed(vx, vy):
   return speed
 
 def findTheta(x, xPts, yPts):
+  # theta for acceleration  should range between 0 and pi
   if x == xPts[0]:
     x = x + 0.00001 # offset by a small amount to avoid error at the boundary
   x2, y2, cnt = findFirstGreater(xPts, yPts, x)
@@ -56,14 +67,14 @@ def integratePosVel(px0, py0, vx0, vy0, t0, dt, theta):
   
   ax = -g * math.cos(theta) * math.sin(theta)
   ay = -g * math.sin(theta) * math.sin(theta)
-  print("ax %0.2f" % ax, "ay %0.2f" % ay)
-  print("acceleration magnitude %0.2f" % getSpeed(ax, ay))
+  #print("ax %0.2f" % ax, "ay %0.2f" % ay)
+  #print("acceleration magnitude %0.2f" % getSpeed(ax, ay))
 
   vxf = vx0 + ax * dt
   vyf = vy0 + ay * dt
 
-  print("dt %0.2f" % dt)
-  print("vxf %0.2f" % vxf, "vyf %0.2f" % vyf)
+  #print("dt %0.2f" % dt)
+  #print("vxf %0.2f" % vxf, "vyf %0.2f" % vyf)
 
   pxf = px0 + vx0 * dt + 0.5 * ax * dt*dt
   pyf = py0 + vy0 * dt + 0.5 * ay * dt*dt
@@ -82,12 +93,14 @@ t = 0
 dt = 0.01
 
 xPts, yPts = createPathPoints()
+theta0 = findTheta(px, xPts, yPts)
 
-while t < 5:
+
+while t < 8:
   theta = findTheta(px, xPts, yPts)
-  vx, vy = correctVelToFitPath(vx, vy, theta)
+  if theta0 != theta: # new slope
+    vx, vy = correctVelToFitPath(vx, vy, theta)
+    checkTotalEnergy(py, vx, vy)
   px, py, vx, vy, t = integratePosVel(px, py, vx, vy, t, dt, theta)
-  checkTotalEnergy(py, vx, vy)
   print("px %0.2f" % px, 'py %0.2f' % py, "vx %0.2f" % vx, 'vy %0.2f' % vy)
-  #print("theta is %0.2f" % (theta*180/math.pi), "deg")
-
+  theta0 = theta
