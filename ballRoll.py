@@ -1,5 +1,7 @@
 import math
 
+# TODO:
+# Create path points using the Brachistrochone problem
 def createPathPoints():
 	xPts = [1, 3, 5, 7, 9, 11, 13, 15, 17]
 	yPts = [100, 70, 55, 45, 42, 60, 80, 100, 200]
