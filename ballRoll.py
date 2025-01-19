@@ -1,10 +1,15 @@
 import math
 
 def createPathPoints():
-	xPts = [1, 3, 5, 7, 9]
-	yPts = [100, 70, 55, 45, 42]
+	xPts = [1, 3, 5, 7, 9, 11, 13, 15, 17]
+	yPts = [100, 70, 55, 45, 42, 60, 80, 100, 110]
 	return xPts, yPts
 
+def correctVelToFitPath(vx, vy, theta):
+  speed = math.sqrt(vx*vx + vy*vy)
+  vx = speed * math.sin(theta)
+  vy = speed * math.cos(theta)
+  return vx, vy
 
 def findTheta(x, xPts, yPts):
   if x == xPts[0]:
@@ -58,8 +63,9 @@ dt = 0.01
 
 xPts, yPts = createPathPoints()
 
-while t < 2:
+while t < 5:
   theta = findTheta(px, xPts, yPts)
+  vx, vy = correctVelToFitPath(vx, vy, theta)
   px, py, vx, vy, t = integratePosVel(px, py, vx, vy, t, dt, theta)
   print("px %0.2f" % px, 'py %0.2f' % py, "vx %0.2f" % vx, 'vy %0.2f' % vy)
   print("theta is %0.2f" % (theta*180/math.pi), "deg")
