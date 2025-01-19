@@ -7,9 +7,11 @@ def createPathPoints():
 
 
 def findTheta(x, xPts, yPts):
+  if x == xPts[0]:
+    x = x + 0.00001 # offset by a small amount to avoid error at the boundary
   x2, y2, cnt = findFirstGreater(xPts, yPts, x)
   if cnt - 1 < 0:
-  	raise Exception("Sorry, no numbers below zero")
+  	raise Exception("Sorry, no numbers below zero. X position of %0.2f" % x, "is probably too small")
   x1 = xPts[cnt-1]
   y1 = yPts[cnt-1]
   m = (y2-y1)/(x2-x1)
@@ -25,6 +27,7 @@ def findFirstGreater(xPts, yPts, target):
       y = yPts[cnt]
       return x, y, cnt
     cnt = cnt + 1
+  raise Exception("Sorry, no numbers found. X position of %0.2f" % target, "is probably too large")
   return None
 
 def integratePosVel(px0, py0, vx0, vy0, t0, dt, theta):
@@ -46,7 +49,7 @@ def integratePosVel(px0, py0, vx0, vy0, t0, dt, theta):
   return pxf, pyf, vxf, vyf, tf
 
 
-px = 3.01
+px = 1
 py = 100
 vx = 0
 vy = 0
