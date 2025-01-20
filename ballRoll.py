@@ -70,13 +70,20 @@ def findFirstGreater(xPts, yPts, target):
   raise Exception("Sorry, no numbers found. X position of %0.2f" % target, "is probably too large")
   return None
 
-def  checkTotalEnergy(py, vx, vy):
+def getTotalEnergy(py, vx, vy):
   # find the massless total energy
   speed = getSpeed(vx, vy)
   ke = 0.5 * speed * speed
   pe = getG() * py
   te = pe + ke
-  print("Total massless energy %0.2f" % te)
+  #print("Total massless energy %0.2f" % te)
+  return te
+
+def checkTotalEnergy(px, vx, vy, te0):
+  te = getTotalEnergy(py, vx, vy)
+  if math.fabs(te - te0) > 0.001:
+    raise Exception("Previous Total massless energy %0.2f" % te0, "Changed to %0.2f" % te, "Too large?")
+  return te
 
 def getG():
 	return 9.81 # gravity in meters/second^2
@@ -114,13 +121,13 @@ dt = 0.01
 
 xPts, yPts = createPathPoints(py, rCyc)
 theta0 = findTheta(px, xPts, yPts)
-
+te0 = getTotalEnergy(py, vx, vy) # initial total massless energy
 
 while t < 8:
   theta = findTheta(px, xPts, yPts)
   if theta0 != theta: # new slope
     vx, vy = correctVelToFitPath(vx, vy, theta)
-    checkTotalEnergy(py, vx, vy)
+    te0 = checkTotalEnergy(px, vx, vy, te0)
   px, py, vx, vy, t = integratePosVel(px, py, vx, vy, t, dt, theta)
   print("px %0.2f" % px, 'py %0.2f' % py, "vx %0.2f" % vx, 'vy %0.2f' % vy)
   theta0 = theta
