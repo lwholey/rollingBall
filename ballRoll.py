@@ -1,9 +1,6 @@
 import math
 
 # TODO:
-# Create path points using the Brachistrochone problem
-# test straight path drops for reasonableness
-# through an error if total massless energy changes by a certain amount
 # check if ball drops below path
 # add drag/friction options
 # add ball rotation dynamics
@@ -30,7 +27,7 @@ def correctVelToFitPath(vx, vy, theta):
   vx0 = vx
   if theta > math.pi / 2:
     theta = theta - math.pi
-  print("1 vx %0.2f" % vx, 'vy %0.2f' % vy, "theta (deg) %0.2f" % (theta*180/math.pi))
+  #print("1 vx %0.2f" % vx, 'vy %0.2f' % vy, "theta (deg) %0.2f" % (theta*180/math.pi))
   speed = getSpeed(vx, vy)
   vx = speed * math.cos(theta)
   vy = speed * math.sin(theta)
@@ -38,7 +35,7 @@ def correctVelToFitPath(vx, vy, theta):
   if vx0 < 0:
     vx = -vx
     vy = -vy
-  print("2 vx %0.2f" % vx, 'vy %0.2f' % vy, "theta (deg) %0.2f" % (theta*180/math.pi))
+  #print("2 vx %0.2f" % vx, 'vy %0.2f' % vy, "theta (deg) %0.2f" % (theta*180/math.pi))
   return vx, vy
 
 def getSpeed(vx, vy):
@@ -88,6 +85,15 @@ def checkTotalEnergy(px, vx, vy, te0):
 def getG():
 	return 9.81 # gravity in meters/second^2
 
+def checkForGoal(px, py, pxg, pyg, minDistFromGoal, t):
+  dist = math.sqrt( (px-pxg) ** 2 + (py-pyg) ** 2 )
+  if dist > minDistFromGoal:
+  		return 0
+  else:
+  		print("Within required distance from target = %0.2f" % dist, "at %0.2f" % t, "seconds")
+  		return 1
+
+
 def integratePosVel(px0, py0, vx0, vy0, t0, dt, theta):
 
   g = getG()
@@ -111,13 +117,19 @@ def integratePosVel(px0, py0, vx0, vy0, t0, dt, theta):
 
   return pxf, pyf, vxf, vyf, tf
 
-rCyc = 58.5 # cycloid radius (m) 
-px = 0
-py = 100
-vx = 0
-vy = 0
+ft2m = 0.3048 # multiply by this constant to convert from feet to meters
+rCyc = 58.5 * ft2m # cycloid radius (m) 
+px = 0  * ft2m
+py = 100  * ft2m
+vx = 0 * ft2m
+vy = 0 * ft2m
 t = 0
 dt = 0.01
+
+# goal target
+pxg = 100 * ft2m
+pyg = 0 * ft2m
+minDistFromGoal = 5  * ft2m
 
 xPts, yPts = createPathPoints(py, rCyc)
 theta0 = findTheta(px, xPts, yPts)
@@ -130,4 +142,6 @@ while t < 8:
     te0 = checkTotalEnergy(px, vx, vy, te0)
   px, py, vx, vy, t = integratePosVel(px, py, vx, vy, t, dt, theta)
   print("px %0.2f" % px, 'py %0.2f' % py, "vx %0.2f" % vx, 'vy %0.2f' % vy)
+  if checkForGoal(px, py, pxg, pyg, minDistFromGoal, t):
+  	break
   theta0 = theta
