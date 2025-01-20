@@ -2,11 +2,27 @@ import math
 
 # TODO:
 # Create path points using the Brachistrochone problem
+# test straight path drops for reasonableness
+# through an error if total massless energy changes by a certain amount
+# check if ball drops below path
 # add drag/friction options
 # add ball rotation dynamics
-def createPathPoints():
-	xPts = [1, 3, 5, 7, 9, 11, 13, 15, 17]
-	yPts = [100, 70, 55, 45, 42, 60, 80, 100, 200]
+def createPathPoints(py, rCyc):
+	# py is starting y point on curve
+	# rCyc is cycloid radius
+	r = rCyc
+	xPts = []
+	yPts = []
+	t = 0
+	dt = 0.001
+	while t < (2 * math.pi):
+		x = r * (t - math.sin(t))
+		y = -r * (1 - math.cos(t)) + py
+		xPts.append(x)
+		yPts.append(y)
+		t = t + dt
+	#xPts = [1, 3, 5, 7, 9, 11, 13, 15, 17]
+	#yPts = [100, 70, 55, 45, 42, 60, 80, 100, 200]
 	return xPts, yPts
 
 def correctVelToFitPath(vx, vy, theta):
@@ -88,15 +104,15 @@ def integratePosVel(px0, py0, vx0, vy0, t0, dt, theta):
 
   return pxf, pyf, vxf, vyf, tf
 
-
-px = 1
+rCyc = 58.5 # cycloid radius (m) 
+px = 0
 py = 100
 vx = 0
 vy = 0
 t = 0
 dt = 0.01
 
-xPts, yPts = createPathPoints()
+xPts, yPts = createPathPoints(py, rCyc)
 theta0 = findTheta(px, xPts, yPts)
 
 
