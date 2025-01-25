@@ -137,6 +137,7 @@ px = 0 * ft2m
 py = 100 * ft2m
 vx = 0 * ft2m
 vy = 0 * ft2m
+m = 0.003  # mass of ball (kg)
 t = 0
 dt = 0.01
 
