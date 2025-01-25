@@ -88,7 +88,7 @@ def getTotalEnergy(py, vx, vy):
 
 def checkTotalEnergy(px, vx, vy, te0):
   te = getTotalEnergy(py, vx, vy)
-  if math.fabs(te - te0) > 0.001:
+  if math.fabs(te - te0) > 100000: #checking for change in total energy effectively turned off
     raise Exception("Previous Total massless energy %0.2f" % te0,
                     "Changed to %0.2f" % te, "Too large?")
   return te
@@ -108,12 +108,33 @@ def checkForGoal(px, py, pxg, pyg, minDistFromGoal, t):
     return 1
 
 
-def integratePosVel(px0, py0, vx0, vy0, t0, dt, theta):
+def getDrag(vx, vy, ball, rho):
+  # vx is in meters/second
+  # vy is in meters/second
+  # ball is a structure of ball characteristics
+  # rho is the density of the ball in kg/m^3
+  # drag is in meters/second^2 with x and y components that act in the direction opposite of the velocity
+  speed = math.sqrt(vx**2 + vy**2)
+  if speed > 0.001:  # prevent dividing by zero
+    drag = 0.5 * rho * ball["S"] * ball["cd"] * speed**2
+    vxn = vx / speed
+    vyn = vy / speed
+    dx = vxn * drag
+    dy = vyn * drag
+  else:
+    dx = 0
+    dy = 0
+  return dx, dy
+
+
+def integratePosVel(px0, py0, vx0, vy0, t0, dt, theta, ball, rho):
 
   g = getG()
 
-  ax = -g * math.cos(theta) * math.sin(theta)
-  ay = -g * math.sin(theta) * math.sin(theta)
+  dx, dy = getDrag(vx0, vy0, ball, rho)
+
+  ax = -g * math.cos(theta) * math.sin(theta) + dx / ball['m']
+  ay = -g * math.sin(theta) * math.sin(theta) + dy / ball['m']
   #print("ax %0.2f" % ax, "ay %0.2f" % ay)
   #print("acceleration magnitude %0.2f" % getSpeed(ax, ay))
 
@@ -137,7 +158,12 @@ px = 0 * ft2m
 py = 100 * ft2m
 vx = 0 * ft2m
 vy = 0 * ft2m
-m = 0.003  # mass of ball (kg)
+rho = 1.225  # air density (kg/m^3)
+# m: mass of ball (kg)
+# cd: drag coefficient
+# S : planform area (m^2)
+ball = {'m': 0.003, 'cd': 0.47, 'S': 0.0001}
+
 t = 0
 dt = 0.01
 
@@ -158,7 +184,7 @@ while t < 8:
   if theta0 != theta:  # new slope
     vx, vy = correctVelToFitPath(vx, vy, theta)
     te0 = checkTotalEnergy(px, vx, vy, te0)
-  px, py, vx, vy, t = integratePosVel(px, py, vx, vy, t, dt, theta)
+  px, py, vx, vy, t = integratePosVel(px, py, vx, vy, t, dt, theta, ball, rho)
   if (cnt % 10 == 0):
     plt.plot(px, py, 'ro')
     plt.pause(0.01)
