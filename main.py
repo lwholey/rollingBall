@@ -88,7 +88,9 @@ def getTotalEnergy(py, vx, vy):
 
 def checkTotalEnergy(px, vx, vy, te0):
   te = getTotalEnergy(py, vx, vy)
-  if math.fabs(te - te0) > 100000: #checking for change in total energy effectively turned off
+  if math.fabs(
+      te - te0
+  ) > 100000:  #checking for change in total energy effectively turned off
     raise Exception("Previous Total massless energy %0.2f" % te0,
                     "Changed to %0.2f" % te, "Too large?")
   return te
@@ -119,8 +121,8 @@ def getDrag(vx, vy, ball, rho):
     drag = 0.5 * rho * ball["S"] * ball["cd"] * speed**2
     vxn = vx / speed
     vyn = vy / speed
-    dx = vxn * drag
-    dy = vyn * drag
+    dx = -vxn * drag
+    dy = -vyn * drag
   else:
     dx = 0
     dy = 0
@@ -135,6 +137,7 @@ def integratePosVel(px0, py0, vx0, vy0, t0, dt, theta, ball, rho):
 
   ax = -g * math.cos(theta) * math.sin(theta) + dx / ball['m']
   ay = -g * math.sin(theta) * math.sin(theta) + dy / ball['m']
+  #print("dx / ball['m'] %0.2f" % (dx / ball['m']), "dy / ball['m'] %0.2f" % (dy / ball['m']))
   #print("ax %0.2f" % ax, "ay %0.2f" % ay)
   #print("acceleration magnitude %0.2f" % getSpeed(ax, ay))
 
